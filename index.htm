@@ -138,21 +138,6 @@
                         <input type="number" id="credit1_1" placeholder="Fənn 1 Krediti" min="2" max="10">
                         <button class="delete-btn" onclick="deleteCourse(this)">X</button>
                     </div>
-                    <div class="inputs">
-                        <input type="number" id="grade1_2" placeholder="Fənn 2 Qiyməti" min="0" max="100">
-                        <input type="number" id="credit1_2" placeholder="Fənn 2 Krediti" min="2" max="10">
-                        <button class="delete-btn" onclick="deleteCourse(this)">X</button>
-                    </div>
-                    <div class="inputs">
-                        <input type="number" id="grade1_3" placeholder="Fənn 3 Qiyməti" min="0" max="100">
-                        <input type="number" id="credit1_3" placeholder="Fənn 3 Krediti" min="2" max="10">
-                        <button class="delete-btn" onclick="deleteCourse(this)">X</button>
-                    </div>
-                    <div class="inputs">
-                        <input type="number" id="grade1_4" placeholder="Fənn 4 Qiyməti" min="0" max="100">
-                        <input type="number" id="credit1_4" placeholder="Fənn 4 Krediti" min="2" max="10">
-                        <button class="delete-btn" onclick="deleteCourse(this)">X</button>
-                    </div>
                 </div>
                 <button onclick="addCourse('courses1')">Fənn Əlavə Et</button>
                 <button onclick="calculateSemesterGPA('courses1', 'result1')">Semestr ÜOMG Hesabla</button>
@@ -187,21 +172,6 @@
                         <input type="number" placeholder="Fənn 1 Krediti" min="2" max="10">
                         <button class="delete-btn" onclick="deleteCourse(this)">X</button>
                     </div>
-                    <div class="inputs">
-                        <input type="number" placeholder="Fənn 2 Qiyməti" min="0" max="100">
-                        <input type="number" placeholder="Fənn 2 Krediti" min="2" max="10">
-                        <button class="delete-btn" onclick="deleteCourse(this)">X</button>
-                    </div>
-                    <div class="inputs">
-                        <input type="number" placeholder="Fənn 3 Qiyməti" min="0" max="100">
-                        <input type="number" placeholder="Fənn 3 Krediti" min="2" max="10">
-                        <button class="delete-btn" onclick="deleteCourse(this)">X</button>
-                    </div>
-                    <div class="inputs">
-                        <input type="number" placeholder="Fənn 4 Qiyməti" min="0" max="100">
-                        <input type="number" placeholder="Fənn 4 Krediti" min="2" max="10">
-                        <button class="delete-btn" onclick="deleteCourse(this)">X</button>
-                    </div>
                 </div>
                 <button onclick="addCourse('courses${semesterCount}')">Fənn Əlavə Et</button>
                 <button onclick="calculateSemesterGPA('courses${semesterCount}', 'result${semesterCount}')">Semestr ÜOMG Hesabla</button>
@@ -209,7 +179,7 @@
             `;
 
             semesters.appendChild(newSemester);
-            updateDeleteButtons();
+            addInputValidation();
         }
 
         function deleteSemester(semesterId) {
@@ -222,35 +192,6 @@
             }
 
             semester.remove();
-            updateSemesterIDs();
-        }
-
-        function updateSemesterIDs() {
-            const semesters = document.querySelectorAll(".semester");
-            semesterCount = 0;
-
-            semesters.forEach((semester, index) => {
-                semesterCount = index + 1;
-                semester.id = `semester${semesterCount}`;
-                semester.querySelector("h2").innerText = `Semestr ${semesterCount}`;
-                semester.querySelector("button.delete-btn").setAttribute("onclick", `deleteSemester('semester${semesterCount}')`);
-                const courses = semester.querySelector(".courses");
-                courses.id = `courses${semesterCount}`;
-                const result = semester.querySelector("div[id^='result']");
-                result.id = `result${semesterCount}`;
-                const addCourseButton = semester.querySelector("button[onclick^='addCourse']");
-                addCourseButton.setAttribute("onclick", `addCourse('courses${semesterCount}')`);
-                const calculateButton = semester.querySelector("button[onclick^='calculateSemesterGPA']");
-                calculateButton.setAttribute("onclick", `calculateSemesterGPA('courses${semesterCount}', 'result${semesterCount}')`);
-            });
-        }
-
-        function updateDeleteButtons() {
-            const semesters = document.querySelectorAll(".semester");
-            semesters.forEach((semester) => {
-                const deleteBtn = semester.querySelector(".delete-btn");
-                deleteBtn.style.display = semesters.length > 1 ? "inline-block" : "none";
-            });
         }
 
         function addCourse(semesterId) {
@@ -274,7 +215,7 @@
             `;
 
             semesterCourses.appendChild(newCourse);
-            updateCourseNumbers(semesterCourses);
+            addInputValidation();
         }
 
         function deleteCourse(button) {
@@ -287,17 +228,6 @@
             }
 
             button.parentElement.remove();
-            updateCourseNumbers(parent);
-        }
-
-        function updateCourseNumbers(semesterCourses) {
-            const inputs = semesterCourses.getElementsByClassName('inputs');
-
-            Array.from(inputs).forEach((input, index) => {
-                const courseNumber = index + 1;
-                input.querySelector("input:nth-child(1)").setAttribute("placeholder", `Fənn ${courseNumber} Qiyməti`);
-                input.querySelector("input:nth-child(2)").setAttribute("placeholder", `Fənn ${courseNumber} Krediti`);
-            });
         }
 
         function calculateSemesterGPA(coursesId, resultId) {
@@ -310,7 +240,7 @@
                 const credit = parseFloat(course.querySelector("input:nth-child(2)").value) || 0;
 
                 if (grade <= 0 || credit <= 0) {
-                    alert("Qiymət və kredit sıfır, mənfi və ya işarə ola bilməz!");
+                    alert("Qiymət və kredit sıfır ola bilməz!");
                     return;
                 }
 
@@ -322,7 +252,6 @@
             const resultElement = document.getElementById(resultId);
             resultElement.classList.add("semester-result");
             resultElement.innerText = `Semestr ÜOMG: ${gpa}`;
-
         }
 
         function calculateOverallGPA() {
@@ -350,8 +279,28 @@
             overallResultElement.innerText = `Ümumi ÜOMG: ${overallGPA}`;
         }
 
-        // Initialize the delete button visibility on page load
-        window.onload = updateDeleteButtons;
+        function addInputValidation() {
+            const inputs = document.querySelectorAll("input[type='number']");
+            inputs.forEach(input => {
+                input.addEventListener("input", function () {
+                    const value = parseFloat(this.value);
+
+                    if (value === 0) {
+                        alert("Qiymət və ya kredit sıfır ola bilməz!");
+                        this.value = "";
+                    } else if (this.placeholder.includes("Qiyməti") && value > 100) {
+                        alert("Qiymət 100-dən böyük ola bilməz!");
+                        this.value = 100;
+                    } else if (this.placeholder.includes("Krediti") && value > 10) {
+                        alert("Kredit 10-dan böyük ola bilməz!");
+                        this.value = 10;
+                    }
+                });
+            });
+        }
+
+        // Initialize input validation on page load
+        window.onload = addInputValidation;
     </script>
 </body>
 
