@@ -165,22 +165,23 @@
     </div>
 
     <footer>
-        © 2025 ÜOMG Hesablama Platforması. Bütün hüquqlar qorunur. Müəllif: Asif Əkbərli
+        © 2025 ÜOMG Hesablama Platforması. Bütün hüquqlar qorunur. Müəllif: Adınız Soyadınız
     </footer>
 
     <script>
         let semesterCount = 1;
 
         function addSemester() {
+            semesterCount++;
             const semesters = document.getElementById("semesters");
             const newSemester = document.createElement("div");
             newSemester.className = "semester";
-            newSemester.id = `semester${semesterCount + 1}`;
+            newSemester.id = `semester${semesterCount}`;
 
             newSemester.innerHTML = `
-                <h2>Semestr ${semesterCount + 1}</h2>
-                <button class="delete-btn" onclick="deleteSemester('semester${semesterCount + 1}')">Semestri Sil</button>
-                <div id="courses${semesterCount + 1}" class="courses">
+                <h2>Semestr ${semesterCount}</h2>
+                <button class="delete-btn" onclick="deleteSemester('semester${semesterCount}')">Semestri Sil</button>
+                <div id="courses${semesterCount}" class="courses">
                     <div class="inputs">
                         <input type="number" placeholder="Fənn 1 Qiyməti" min="0" max="100">
                         <input type="number" placeholder="Fənn 1 Krediti" min="2" max="10">
@@ -202,13 +203,12 @@
                         <button class="delete-btn" onclick="deleteCourse(this)">X</button>
                     </div>
                 </div>
-                <button onclick="addCourse('courses${semesterCount + 1}')">Fənn Əlavə Et</button>
-                <button onclick="calculateSemesterGPA('courses${semesterCount + 1}', 'result${semesterCount + 1}')">Semestr ÜOMG Hesabla</button>
-                <div id="result${semesterCount + 1}"></div>
+                <button onclick="addCourse('courses${semesterCount}')">Fənn Əlavə Et</button>
+                <button onclick="calculateSemesterGPA('courses${semesterCount}', 'result${semesterCount}')">Semestr ÜOMG Hesabla</button>
+                <div id="result${semesterCount}"></div>
             `;
 
             semesters.appendChild(newSemester);
-            semesterCount++;
             updateDeleteButtons();
         }
 
@@ -222,8 +222,27 @@
             }
 
             semester.remove();
-            semesterCount--;
-            updateDeleteButtons();
+            updateSemesterIDs();
+        }
+
+        function updateSemesterIDs() {
+            const semesters = document.querySelectorAll(".semester");
+            semesterCount = 0;
+
+            semesters.forEach((semester, index) => {
+                semesterCount = index + 1;
+                semester.id = `semester${semesterCount}`;
+                semester.querySelector("h2").innerText = `Semestr ${semesterCount}`;
+                semester.querySelector("button.delete-btn").setAttribute("onclick", `deleteSemester('semester${semesterCount}')`);
+                const courses = semester.querySelector(".courses");
+                courses.id = `courses${semesterCount}`;
+                const result = semester.querySelector("div[id^='result']");
+                result.id = `result${semesterCount}`;
+                const addCourseButton = semester.querySelector("button[onclick^='addCourse']");
+                addCourseButton.setAttribute("onclick", `addCourse('courses${semesterCount}')`);
+                const calculateButton = semester.querySelector("button[onclick^='calculateSemesterGPA']");
+                calculateButton.setAttribute("onclick", `calculateSemesterGPA('courses${semesterCount}', 'result${semesterCount}')`);
+            });
         }
 
         function updateDeleteButtons() {
@@ -255,6 +274,7 @@
             `;
 
             semesterCourses.appendChild(newCourse);
+            updateCourseNumbers(semesterCourses);
         }
 
         function deleteCourse(button) {
@@ -267,6 +287,17 @@
             }
 
             button.parentElement.remove();
+            updateCourseNumbers(parent);
+        }
+
+        function updateCourseNumbers(semesterCourses) {
+            const inputs = semesterCourses.getElementsByClassName('inputs');
+
+            Array.from(inputs).forEach((input, index) => {
+                const courseNumber = index + 1;
+                input.querySelector("input:nth-child(1)").setAttribute("placeholder", `Fənn ${courseNumber} Qiyməti`);
+                input.querySelector("input:nth-child(2)").setAttribute("placeholder", `Fənn ${courseNumber} Krediti`);
+            });
         }
 
         function calculateSemesterGPA(coursesId, resultId) {
@@ -291,34 +322,31 @@
             const resultElement = document.getElementById(resultId);
             resultElement.classList.add("semester-result");
             resultElement.innerText = `Semestr ÜOMG: ${gpa}`;
+
         }
 
         function calculateOverallGPA() {
-            let totalGPA = 0;
-            let semesterCount = 0;
+            let overallPoints = 0;
+            let overallCredits = 0;
 
-            const semesters = document.querySelectorAll('.semester');
+            const semesters = document.querySelectorAll(".semester");
+            for (const semester of semesters) {
+                const courses = semester.querySelector(".courses").getElementsByClassName("inputs");
+                for (const course of courses) {
+                    const grade = parseFloat(course.querySelector("input:nth-child(1)").value) || 0;
+                    const credit = parseFloat(course.querySelector("input:nth-child(2)").value) || 0;
 
-            semesters.forEach((semester) => {
-                const resultId = `result${semester.id.replace('semester', '')}`;
-                const gpaText = document.getElementById(resultId).innerText;
-
-                if (gpaText) {
-                    const gpa = parseFloat(gpaText.replace('Semestr ÜOMG: ', ''));
-                    if (!isNaN(gpa)) {
-                        totalGPA += gpa;
-                        semesterCount++;
+                    if (grade > 0 && credit > 0) {
+                        overallPoints += grade * credit;
+                        overallCredits += credit;
                     }
                 }
-            });
+            }
 
-            const overallGPA = semesterCount > 0 ? (totalGPA / semesterCount).toFixed(2) : 0;
+            const overallGPA = overallCredits > 0 ? (overallPoints / overallCredits).toFixed(2) : 0;
             const overallResultElement = document.getElementById("overallResult");
-            overallResultElement.classList.add("semester-result");
             overallResultElement.innerText = `Ümumi ÜOMG: ${overallGPA}`;
         }
-
-        updateDeleteButtons();
     </script>
 </body>
 
