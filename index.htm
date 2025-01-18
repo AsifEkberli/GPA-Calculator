@@ -165,7 +165,7 @@
     </div>
 
     <footer>
-        © 2025 ÜOMG Hesablama Platforması. Bütün hüquqlar qorunur. Müəllif: Adınız Soyadınız
+        © 2025 ÜOMG Hesablama Platforması. Bütün hüquqlar qorunur. Müəllif: Asif Əkbərli
     </footer>
 
     <script>
@@ -326,27 +326,32 @@
         }
 
         function calculateOverallGPA() {
-            let overallPoints = 0;
-            let overallCredits = 0;
+            let totalPoints = 0;
+            let totalCredits = 0;
 
             const semesters = document.querySelectorAll(".semester");
+
             for (const semester of semesters) {
                 const courses = semester.querySelector(".courses").getElementsByClassName("inputs");
+
                 for (const course of courses) {
                     const grade = parseFloat(course.querySelector("input:nth-child(1)").value) || 0;
                     const credit = parseFloat(course.querySelector("input:nth-child(2)").value) || 0;
 
                     if (grade > 0 && credit > 0) {
-                        overallPoints += grade * credit;
-                        overallCredits += credit;
+                        totalPoints += grade * credit;
+                        totalCredits += credit;
                     }
                 }
             }
 
-            const overallGPA = overallCredits > 0 ? (overallPoints / overallCredits).toFixed(2) : 0;
+            const overallGPA = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : 0;
             const overallResultElement = document.getElementById("overallResult");
             overallResultElement.innerText = `Ümumi ÜOMG: ${overallGPA}`;
         }
+
+        // Initialize the delete button visibility on page load
+        window.onload = updateDeleteButtons;
     </script>
 </body>
 
