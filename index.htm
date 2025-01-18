@@ -276,6 +276,12 @@
                 const grade = parseFloat(course.querySelector("input:nth-child(1)").value) || 0;
                 const credit = parseFloat(course.querySelector("input:nth-child(2)").value) || 0;
 
+                // Yalnız sıfır və ya mənfi olmayan qiymət və kreditləri hesabla
+                if (grade <= 0 || credit <= 0) {
+                    alert("Qiymət və kredit sıfır və ya mənfi ola bilməz!");
+                    return;
+                }
+
                 totalPoints += grade * credit;
                 totalCredits += credit;
             }
