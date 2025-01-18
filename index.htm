@@ -104,7 +104,6 @@
             margin-left: 10px;
         }
 
-        /* Semestr ÜOMG şriftini bold etmək */
         .semester-result {
             font-weight: bold;
             padding: 10px;
@@ -116,6 +115,12 @@
             margin-top: 20px;
             color: blue;
             font-weight: bold;
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #555;
         }
     </style>
 </head>
@@ -159,10 +164,13 @@
         <div id="overallResult"></div>
     </div>
 
+    <footer>
+        © 2025 ÜOMG Hesablama Platforması. Bütün hüquqlar qorunur. Müəllif: Adınız Soyadınız
+    </footer>
+
     <script>
         let semesterCount = 1;
 
-        // Semestr əlavə etmə funksiyası
         function addSemester() {
             const semesters = document.getElementById("semesters");
             const newSemester = document.createElement("div");
@@ -200,29 +208,32 @@
             `;
 
             semesters.appendChild(newSemester);
-            semesterCount++; // Yeni semestr əlavə olunduqda say artırılır
+            semesterCount++;
+            updateDeleteButtons();
         }
 
-        // Semestr silinərkən nömrələrin yenilənməsi
         function deleteSemester(semesterId) {
             const semester = document.getElementById(semesterId);
-            if (document.querySelectorAll(".semester").length <= 1) {
+            const semesters = document.querySelectorAll(".semester");
+
+            if (semesters.length <= 1) {
                 alert("Ən azı bir semestr olmalıdır!");
                 return;
             }
 
             semester.remove();
+            semesterCount--;
+            updateDeleteButtons();
+        }
 
-            // Semestrdən sonra gələn semestrlərin ID-lərini yeniləyirik
-            const semesters = document.querySelectorAll('.semester');
-            semesterCount = semesters.length;  // Semestr sayını yeniləyirik
-            semesters.forEach((semester, index) => {
-                semester.querySelector('h2').innerText = `Semestr ${index + 1}`;
-                semester.id = `semester${index + 1}`;
+        function updateDeleteButtons() {
+            const semesters = document.querySelectorAll(".semester");
+            semesters.forEach((semester) => {
+                const deleteBtn = semester.querySelector(".delete-btn");
+                deleteBtn.style.display = semesters.length > 1 ? "inline-block" : "none";
             });
         }
 
-        // Fənn əlavə etmə funksiyası
         function addCourse(semesterId) {
             const semesterCourses = document.getElementById(semesterId);
             const inputs = semesterCourses.getElementsByClassName("inputs");
@@ -246,27 +257,18 @@
             semesterCourses.appendChild(newCourse);
         }
 
-        // Fəndən sonra gələn fənlərin nömrələrinin yenilənməsi
         function deleteCourse(button) {
             const parent = button.parentElement.parentElement;
             const inputs = parent.getElementsByClassName('inputs');
 
-            if (inputs.length <= 4) {
-                alert("Bir semestrdə minimum 4 fənn olmalıdır!");
+            if (inputs.length <= 1) {
+                alert("Bir semestrdə minimum 1 fənn olmalıdır!");
                 return;
             }
 
             button.parentElement.remove();
-
-            // Fəndən sonra gələn fənlərin ID-lərini yeniləyirik
-            const courses = parent.getElementsByClassName('inputs');
-            for (let i = 0; i < courses.length; i++) {
-                courses[i].querySelector('input:nth-child(1)').placeholder = `Fənn ${i + 1} Qiyməti`;
-                courses[i].querySelector('input:nth-child(2)').placeholder = `Fənn ${i + 1} Krediti`;
-            }
         }
 
-        // Semestr ÜOMG hesablanması
         function calculateSemesterGPA(coursesId, resultId) {
             let totalPoints = 0;
             let totalCredits = 0;
@@ -276,7 +278,6 @@
                 const grade = parseFloat(course.querySelector("input:nth-child(1)").value) || 0;
                 const credit = parseFloat(course.querySelector("input:nth-child(2)").value) || 0;
 
-                // Yalnız sıfır və ya mənfi olmayan qiymət və kreditləri hesabla
                 if (grade <= 0 || credit <= 0) {
                     alert("Qiymət və kredit sıfır, mənfi və ya işarə ola bilməz!");
                     return;
@@ -292,7 +293,6 @@
             resultElement.innerText = `Semestr ÜOMG: ${gpa}`;
         }
 
-        // Ümumi ÜOMG hesablanması
         function calculateOverallGPA() {
             let totalGPA = 0;
             let semesterCount = 0;
@@ -317,6 +317,8 @@
             overallResultElement.classList.add("semester-result");
             overallResultElement.innerText = `Ümumi ÜOMG: ${overallGPA}`;
         }
+
+        updateDeleteButtons();
     </script>
 </body>
 
